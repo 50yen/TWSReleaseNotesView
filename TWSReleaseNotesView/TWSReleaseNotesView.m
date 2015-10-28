@@ -34,7 +34,6 @@ static const CGFloat kTWSReleaseNotesViewContainerViewWidth = 280.0f;
 static const CGFloat kTWSReleaseNotesViewContainerViewMinVerticalPadding = 60.0f;
 static const CGFloat kTWSReleaseNotesViewInnerContainerSidePadding = 6.0f;
 static const CGFloat kTWSReleaseNotesViewBlurredImageViewCornerRadius = 5.0f;
-static const CGFloat kTWSReleaseNotesViewTitleSidePadding = 6.0f;
 static const CGFloat kTWSReleaseNotesViewTitleLabelHeight = 44.0f;
 static const CGFloat kTWSReleaseNotesViewTextViewInsetHeight = 9.0f;
 static const CGFloat kTWSReleaseNotesViewButtonBoxHeight = 44.0f;
@@ -266,7 +265,6 @@ static const NSTimeInterval kTWSReleaseNotesViewTransitionDuration = 0.2f;
     _titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     [_titleLabel setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin];
     [_titleLabel setBackgroundColor:[UIColor clearColor]];
-    [_titleLabel setNumberOfLines:2];
     [_titleLabel.layer setShadowRadius:0.0f];
     [_titleLabel.layer setShadowOpacity:1.0f];
     [_titleLabel setTextAlignment:NSTextAlignmentCenter];
@@ -323,7 +321,7 @@ static const NSTimeInterval kTWSReleaseNotesViewTransitionDuration = 0.2f;
     [self.textContainerView setFrame:CGRectInset(self.popupView.bounds, kTWSReleaseNotesViewInnerContainerSidePadding, kTWSReleaseNotesViewInnerContainerSidePadding)];
     
     // Title label frame
-    CGRect titleLabelFrame = CGRectInset(self.textContainerView.frame, kTWSReleaseNotesViewTitleSidePadding, 0.0f);
+    CGRect titleLabelFrame = self.textContainerView.frame;
     titleLabelFrame.size.height = kTWSReleaseNotesViewTitleLabelHeight;
     [self.titleLabel setFrame:titleLabelFrame];
     
@@ -420,7 +418,11 @@ static const NSTimeInterval kTWSReleaseNotesViewTransitionDuration = 0.2f;
 - (CGFloat)expectedReleaseNotesTextHeightWithWidth:(CGFloat)width;
 {
     CGSize maximumLabelSize = CGSizeMake(width, MAXFLOAT);
-    CGSize expectedLabelSize = [self.releaseNotesText sizeWithFont:self.releaseNotesFont constrainedToSize:maximumLabelSize lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize expectedLabelSize;
+    expectedLabelSize = [self.releaseNotesText boundingRectWithSize: maximumLabelSize
+                                                            options:NSStringDrawingUsesLineFragmentOrigin
+                                                         attributes: @{ NSFontAttributeName : self.releaseNotesFont }
+                                                            context: nil].size;
     return expectedLabelSize.height + 2*kTWSReleaseNotesViewTextViewInsetHeight;
 }
 
@@ -467,8 +469,9 @@ static const NSTimeInterval kTWSReleaseNotesViewTransitionDuration = 0.2f;
                 if (finished)
                 {
                     [self removeFromSuperview];
-                    if (self.handler)
+                    if (self.handler) {
                         self.handler();
+                    }
                 }
             }];
         }
@@ -498,6 +501,7 @@ static const NSTimeInterval kTWSReleaseNotesViewTransitionDuration = 0.2f;
     } completion:^(BOOL finished){
         if (finished)
         {
+            [self.textView setContentOffset:CGPointMake(0, 0) animated:NO];
             [UIView animateWithDuration:kTWSReleaseNotesViewTransitionDuration/2.0f animations:^{
                 [self.popupView setTransform:CGAffineTransformScale(CGAffineTransformIdentity, 1.0f - kTWSReleaseNotesViewAnimationSpringScaleFactor, 1.0f - kTWSReleaseNotesViewAnimationSpringScaleFactor)];
             } completion:^(BOOL finished){

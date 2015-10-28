@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 typedef void (^TWSReleaseNotesViewCompletionHandler)(void);
-
 /**
  Use the `TWSReleaseNotesView` class to display a custom release notes view, to be shown when the app is opened for the first time after an update.
  
@@ -89,11 +88,9 @@ typedef void (^TWSReleaseNotesViewCompletionHandler)(void);
 /// The shadow offset for the close button. Default is `(0.0f, -1.0f)`.
 @property (assign, nonatomic) CGSize closeButtonShadowOffset;
 
-/// A completion handler
-@property (copy, nonatomic) TWSReleaseNotesViewCompletionHandler handler;
 
 /** @name Creating the release notes view */
-
+@property (copy, nonatomic) TWSReleaseNotesViewCompletionHandler handler;
 /**
  Returns a release notes view initialized with custom parameters.
  @param releaseNotesTitle The title for the release notes view.
